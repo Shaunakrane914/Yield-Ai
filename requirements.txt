@@ -1,0 +1,24 @@
+# Core web frameworks
+fastapi
+uvicorn[standard]
+
+# Database (Using the pure Python driver to avoid compiler issues)
+pymysql
+
+# Security / utilities
+bcrypt
+passlib[bcrypt]
+python-dotenv
+
+# Data & ML stack
+pandas
+numpy
+scikit-learn
+joblib
+xgboost
+
+# Type validation (FastAPI uses Pydantic v2)
+pydantic
+
+# AI Integration
+google-generativeai

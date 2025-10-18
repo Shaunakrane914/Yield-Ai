@@ -1,0 +1,20 @@
+# KrushiBandhu AI - Database Dependencies (Windows Compatible)
+
+# Database - Use pure python driver that requires no compiler
+pymysql
+
+# Data Processing - Use modern, pre-compiled versions
+pandas
+numpy
+
+# Environment Management
+python-dotenv
+
+# Other utilities
+colorlog
+requests
+aiohttp
+python-dateutil
+orjson
+pydantic
+pydantic-settings
