@@ -1,4 +1,4 @@
-﻿# Odisha Crop Yield Forecaster
+# Odisha Crop Yield Forecaster
 
 A simple, user-friendly web application that helps Odisha farmers predict crop yields based on location and weather conditions.
 
@@ -35,17 +35,36 @@ The app provides:
 
 ## Getting Started
 
-1. Install dependencies:
+### Frontend
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the development server:
+3. Start the development server:
    ```bash
    npm run dev
    ```
 
-3. Open your browser and visit `http://localhost:5173`
+4. Open your browser and visit `http://localhost:5173`
+
+### Backend
+
+1. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Start the FastAPI server:
+   ```bash
+   python backend/main.py
+   ```
 
 ## Future Enhancements
 
