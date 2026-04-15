@@ -69,7 +69,7 @@ COOKIE_SERIALIZER = URLSafeSerializer(str(SESSION_SECRET), salt="session-salt")
 # ------------------------------------------------------------
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_USER = os.environ.get("DB_USER", "root")
-DB_PASS = os.environ.get("DB_PASS", "16042006")
+DB_PASS = os.environ.get("DB_PASSWORD") or os.environ.get("DB_PASS", "16042006")
 DB_NAME = os.environ.get("DB_NAME", "krushibandhu_ai")
 
 # ------------------------------------------------------------
@@ -116,7 +116,12 @@ def ensure_users_table(db: mysql.connector.MySQLConnection) -> None:
 @app.on_event("startup")
 def _startup_init_db():
     # Open a short-lived connection to ensure the users table exists
-    conn = mysql.connector.connect(host=DB_HOST, user=DB_USER, password=DB_PASS, database=DB_NAME)
+    try:
+        conn = mysql.connector.connect(host=DB_HOST, user=DB_USER, password=DB_PASS, database=DB_NAME)
+    except Exception as e:
+        # Don't crash app startup if DB creds are wrong; endpoints will report DB errors as needed.
+        print(f"[startup] Database connection failed (continuing without DB init): {e}")
+        return
     try:
         ensure_users_table(conn)
         # Also ensure farms table exists at startup
@@ -267,8 +272,8 @@ MODEL_CACHE: Dict[str, Any] = {"loaded": False}
 def load_artifacts() -> None:
     if MODEL_CACHE.get("loaded"):
         return
-    base_dir = os.path.dirname(__file__)
-    models_dir = os.path.join(base_dir, "models")
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    models_dir = os.path.join(project_root, "models")
     model_path = os.path.join(models_dir, "xgb_yield_model.pkl")
     preprocess_path = os.path.join(models_dir, "preprocessors.pkl")
     spec_path = os.path.join(models_dir, "feature_spec.json")
@@ -527,9 +532,9 @@ def create_predictions_table(db: mysql.connector.MySQLConnection):
             )
         """)
         db.commit()
-        print("✅ 'predictions' table checked/created successfully.")
+        print("'predictions' table checked/created successfully.")
     except mysql.connector.Error as err:
-        print(f"❌ Failed to create 'predictions' table: {err}")
+        print(f"Failed to create 'predictions' table: {err}")
         db.rollback()
     finally:
         cursor.close()
@@ -560,13 +565,13 @@ def create_user_predictions_table(db: mysql.connector.MySQLConnection):
         # Migration: ensure user_id is nullable (for anonymous saves)
         try:
             cursor.execute("ALTER TABLE user_predictions MODIFY user_id INT NULL")
-            print("🔄 user_predictions.user_id set to NULLABLE")
+            print("user_predictions.user_id set to NULLABLE")
         except Exception as e:
-            print(f"ℹ️ user_id NULLABLE migration skipped or failed (likely already NULL): {e}")
+            print(f"user_id NULLABLE migration skipped or failed (likely already NULL): {e}")
         db.commit()
-        print("✅ 'user_predictions' table checked/created successfully.")
+        print("'user_predictions' table checked/created successfully.")
     except mysql.connector.Error as err:
-        print(f"❌ Failed to create 'user_predictions' table: {err}")
+        print(f"Failed to create 'user_predictions' table: {err}")
         db.rollback()
     finally:
         cursor.close()
@@ -1501,16 +1506,16 @@ async def register_options(request: Request):
 @app.on_event("startup")
 async def startup_event():
     """Load the plant disease model on startup."""
-    print("🚀 Starting Krushi-Mitra AI server...")
-    print("🌱 Loading Plant Doctor AI model...")
+    print("Starting Krushi-Mitra AI server...")
+    print("Loading Plant Doctor AI model...")
     
     # Load the plant disease model
     if load_plant_disease_model():
-        print("✅ Plant Doctor AI model loaded successfully!")
+        print("Plant Doctor AI model loaded successfully!")
     else:
-        print("⚠️  Plant Doctor AI model could not be loaded. Feature will be disabled.")
+        print("Plant Doctor AI model could not be loaded. Feature will be disabled.")
     
-    print("🎉 Server startup complete!")
+    print("Server startup complete!")
 
 # ------------------------------------------------------------
 # Plant Doctor AI Functions
@@ -1529,9 +1534,9 @@ def load_plant_disease_model():
         model_path = "models/plant_disease/plant_disease_model.h5"
         if os.path.exists(model_path):
             plant_disease_model = keras.models.load_model(model_path)
-            print(f"✅ Plant disease model loaded from {model_path}")
+            print(f"Plant disease model loaded from {model_path}")
         else:
-            print(f"❌ Model file not found at {model_path}")
+            print(f"Model file not found at {model_path}")
             return False
         
         # Load metadata
@@ -1539,14 +1544,14 @@ def load_plant_disease_model():
         if os.path.exists(metadata_path):
             with open(metadata_path, 'r') as f:
                 plant_disease_metadata = json.load(f)
-            print(f"✅ Plant disease metadata loaded from {metadata_path}")
+            print(f"Plant disease metadata loaded from {metadata_path}")
         else:
-            print(f"❌ Metadata file not found at {metadata_path}")
+            print(f"Metadata file not found at {metadata_path}")
             return False
         
         return True
     except Exception as e:
-        print(f"❌ Error loading plant disease model: {e}")
+        print(f"Error loading plant disease model: {e}")
         return False
 
 def preprocess_image_for_model(image_bytes: bytes) -> np.ndarray:
@@ -1570,7 +1575,7 @@ def preprocess_image_for_model(image_bytes: bytes) -> np.ndarray:
         
         return image_array
     except Exception as e:
-        print(f"❌ Error preprocessing image: {e}")
+        print(f"Error preprocessing image: {e}")
         raise HTTPException(status_code=400, detail=f"Image preprocessing failed: {str(e)}")
 
 def predict_plant_disease(image_bytes: bytes) -> Dict[str, Any]:
@@ -1621,7 +1626,7 @@ def predict_plant_disease(image_bytes: bytes) -> Dict[str, Any]:
             }
         }
     except Exception as e:
-        print(f"❌ Error predicting plant disease: {e}")
+        print(f"Error predicting plant disease: {e}")
         raise HTTPException(status_code=500, detail=f"Disease prediction failed: {str(e)}")
 
 def validate_image_file(file: UploadFile) -> bool:
@@ -1906,8 +1911,8 @@ def debug_auth(request: Request, db=Depends(get_db)):
 @app.get("/check-auth")
 def check_auth(request: Request, db=Depends(get_db)):
     user_id = request.session.get("user_id")
-    print(f"🔍 [DEBUG] check-auth: user_id from session = {user_id}")
-    print(f"🔍 [DEBUG] check-auth: full session = {dict(request.session)}")
+    print(f"[DEBUG] check-auth: user_id from session = {user_id}")
+    print(f"[DEBUG] check-auth: full session = {dict(request.session)}")
     if user_id:
         # Determine if user has farm setup
         has_farm = False
@@ -1933,7 +1938,7 @@ def check_auth(request: Request, db=Depends(get_db)):
                 "username": request.session.get("username"),
             },
         }
-    print("❌ [DEBUG] check-auth: No user_id in session - returning false")
+    print("[DEBUG] check-auth: No user_id in session - returning false")
     return {"authenticated": False, "has_farm_setup": False}
 
 
@@ -2170,7 +2175,7 @@ def predict_advanced(body: PredictAdvancedBody, request: Request, db=Depends(get
                 "prediction_timestamp": datetime.now().isoformat()
             }
 
-            print("🔍 [DEBUG] Saving prediction to user_predictions:")
+            print("[DEBUG] Saving prediction to user_predictions:")
             print(f"  - user_id: {user_id}")
             print(f"  - crop: {resp.get('crop', 'Unknown')}")
             print(f"  - district: {resp.get('district', 'Unknown')}")
@@ -2194,33 +2199,33 @@ def predict_advanced(body: PredictAdvancedBody, request: Request, db=Depends(get
                 ),
             )
             new_id = cursor.lastrowid
-            print(f"🔍 [DEBUG] Inserted user_predictions row id: {new_id}")
+            print(f"[DEBUG] Inserted user_predictions row id: {new_id}")
             db.commit()
 
             # Verify insert
             if user_id:
                 cursor.execute("SELECT COUNT(*) as count FROM user_predictions WHERE user_id = %s", (user_id,))
                 count_result = cursor.fetchone()
-                print(f"🔍 [DEBUG] Verification: {count_result[0] if count_result else 0} total predictions for user_id: {user_id}")
+                print(f"[DEBUG] Verification: {count_result[0] if count_result else 0} total predictions for user_id: {user_id}")
             else:
                 cursor.execute("SELECT COUNT(*) as count FROM user_predictions WHERE user_id IS NULL")
                 count_result = cursor.fetchone()
-                print(f"🔍 [DEBUG] Verification: {count_result[0] if count_result else 0} total predictions for anonymous users")
+                print(f"[DEBUG] Verification: {count_result[0] if count_result else 0} total predictions for anonymous users")
 
             cursor.close()
-            print("✅ Prediction saved to user_predictions")
+            print("Prediction saved to user_predictions")
             # Extra debug: read back the inserted row
             try:
                 c2 = db.cursor(dictionary=True)
                 c2.execute("SELECT * FROM user_predictions WHERE id = %s", (new_id,))
                 row = c2.fetchone()
-                print(f"🔎 [DEBUG] Inserted row readback: {row}")
+                print(f"[DEBUG] Inserted row readback: {row}")
                 c2.close()
             except Exception as rb_e:
-                print(f"ℹ️ [DEBUG] Readback failed: {rb_e}")
+                print(f"[DEBUG] Readback failed: {rb_e}")
 
         except Exception as e:
-            print(f"❌ Failed to save prediction: {e}")
+            print(f"Failed to save prediction: {e}")
             import traceback
             traceback.print_exc()
             db.rollback()
@@ -2972,7 +2977,7 @@ async def diagnose_plant_disease(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error in plant disease diagnosis: {e}")
+        print(f"Error in plant disease diagnosis: {e}")
         raise HTTPException(status_code=500, detail=f"Diagnosis failed: {str(e)}")
 
 def get_disease_recommendations(disease_name: str) -> Dict[str, Any]:

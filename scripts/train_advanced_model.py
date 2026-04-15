@@ -33,7 +33,9 @@ DB_PASS = os.getenv("DB_PASSWORD", os.getenv("DB_PASS", "16042006"))
 DB_NAME = os.getenv("DB_NAME", "krushibandhu_ai")
 DB_PORT = int(os.getenv("DB_PORT", "3306"))
 
-MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
+SCRIPT_DIR = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 

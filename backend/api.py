@@ -156,9 +156,11 @@ def check_auth():
 
 # Simple prediction function based on the data patterns
 # Load the trained model and encoders
-model_path = 'rf_model.pkl'
-encoder_path = 'label_encoders.pkl'
-features_path = 'feature_columns.pkl'
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
+model_path = os.path.join(MODELS_DIR, "rf_model.pkl")
+encoder_path = os.path.join(MODELS_DIR, "label_encoders.pkl")
+features_path = os.path.join(MODELS_DIR, "feature_columns.pkl")
 
 # Check if model files exist and load them
 if os.path.exists(model_path) and os.path.exists(encoder_path) and os.path.exists(features_path):

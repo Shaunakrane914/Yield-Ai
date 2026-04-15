@@ -31,13 +31,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SCRIPT_DIR = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASS = os.getenv("DB_PASSWORD", os.getenv("DB_PASS", "16042006"))
 DB_NAME = os.getenv("DB_NAME", "krushibandhu_ai")
 DB_PORT = int(os.getenv("DB_PORT", 3306))
 
-CSV_PATH = os.path.join(os.path.dirname(__file__), "merged_crop_data.csv")
+CSV_PATH = os.path.join(PROJECT_ROOT, "data", "merged_crop_data.csv")
 
 # Map: db_column -> csv_column
 COLUMN_MAP = {

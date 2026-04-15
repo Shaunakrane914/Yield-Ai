@@ -1,0 +1,74 @@
+{
+  "Cuttack": {
+    "avgRainfall": 26.7,
+    "avgMaxTemp": 31.1,
+    "avgMinTemp": 21.1,
+    "avgTemp": 26.1
+  },
+  "Mayurbhanj, Bolangir, Dhenkanal": {
+    "avgRainfall": 55.4,
+    "avgMaxTemp": 32.6,
+    "avgMinTemp": 23.5,
+    "avgTemp": 28.0
+  },
+  "Ganjam": {
+    "avgRainfall": 37.9,
+    "avgMaxTemp": 31.5,
+    "avgMinTemp": 24.9,
+    "avgTemp": 28.2
+  },
+  "Sundargarh": {
+    "avgRainfall": 44.9,
+    "avgMaxTemp": 32.4,
+    "avgMinTemp": 21.8,
+    "avgTemp": 27.1
+  },
+  "Kalahandi, Sambalpur": {
+    "avgRainfall": 44.0,
+    "avgMaxTemp": 32.1,
+    "avgMinTemp": 22.5,
+    "avgTemp": 27.3
+  },
+  "Keonjargarh": {
+    "avgRainfall": 55.6,
+    "avgMaxTemp": 31.4,
+    "avgMinTemp": 22.9,
+    "avgTemp": 27.1
+  },
+  "Puri": {
+    "avgRainfall": 45.7,
+    "avgMaxTemp": 31.8,
+    "avgMinTemp": 23.8,
+    "avgTemp": 27.8
+  },
+  "Balasore": {
+    "avgRainfall": 30.5,
+    "avgMaxTemp": 30.5,
+    "avgMinTemp": 20.1,
+    "avgTemp": 25.3
+  },
+  "Dhenkanal": {
+    "avgRainfall": 3.6,
+    "avgMaxTemp": 28.8,
+    "avgMinTemp": 15.7,
+    "avgTemp": 22.3
+  },
+  "Sambalpur": {
+    "avgRainfall": 5.3,
+    "avgMaxTemp": 30.4,
+    "avgMinTemp": 15.3,
+    "avgTemp": 22.9
+  },
+  "Mayurbhanj": {
+    "avgRainfall": 5.0,
+    "avgMaxTemp": 28.9,
+    "avgMinTemp": 15.4,
+    "avgTemp": 22.1
+  },
+  "Phulbani": {
+    "avgRainfall": 33.9,
+    "avgMaxTemp": 29.5,
+    "avgMinTemp": 17.2,
+    "avgTemp": 23.4
+  }
+}

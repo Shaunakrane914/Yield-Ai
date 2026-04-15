@@ -14,6 +14,11 @@ import time
 import pandas as pd
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+DATA_DIR = PROJECT_ROOT / "data"
+SQL_DIR = PROJECT_ROOT / "sql"
+
 def check_mysql_installation():
     """Check if MySQL is installed and running."""
     # Common MySQL installation paths on Windows
@@ -106,7 +111,7 @@ DEBUG=True
 def test_mysql_connection():
     """Test MySQL connection with current configuration."""
     try:
-        from database_manager import DatabaseManager
+        from backend.database_manager import DatabaseManager
         db_manager = DatabaseManager()
         if db_manager.test_connection():
             print("✅ MySQL connection successful")
@@ -205,7 +210,7 @@ def migrate_csv_data_simple(db_manager, csv_file_path: str) -> bool:
 def run_database_setup():
     """Run the complete database setup."""
     try:
-        from database_manager import DatabaseManager
+        from backend.database_manager import DatabaseManager
         
         print("\n🚀 Starting database setup...")
         db_manager = DatabaseManager()
@@ -218,14 +223,15 @@ def run_database_setup():
         
         # Run SQL setup
         print("🏗️  Setting up database schema...")
-        if not db_manager.run_sql_file('database_setup_simple.sql'):
+        if not db_manager.run_sql_file(str(SQL_DIR / "database_setup_simple.sql")):
             print("❌ Database schema setup failed!")
             return False
         
         # Migrate CSV data using the robust DatabaseManager implementation
         print("📋 Migrating CSV data...")
-        if os.path.exists('merged_crop_data.csv'):
-            if not db_manager.migrate_csv_data('merged_crop_data.csv'):
+        csv_path = DATA_DIR / "merged_crop_data.csv"
+        if csv_path.exists():
+            if not db_manager.migrate_csv_data(str(csv_path)):
                 print("❌ CSV data migration failed!")
                 return False
         else:
@@ -241,7 +247,7 @@ def run_database_setup():
 def verify_setup():
     """Verify the database setup."""
     try:
-        from database_manager import DatabaseManager
+        from backend.database_manager import DatabaseManager
         db_manager = DatabaseManager()
         
         print("\n🔍 Verifying database setup...")
@@ -298,7 +304,7 @@ def main():
     if not test_mysql_connection():
         print("\n⚠️  Database doesn't exist yet, creating it...")
         try:
-            from database_manager import DatabaseManager
+            from backend.database_manager import DatabaseManager
             db_manager = DatabaseManager()
             if db_manager.create_database():
                 print("✅ Database created successfully")

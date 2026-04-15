@@ -6,11 +6,19 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 import warnings
+import os
 warnings.filterwarnings('ignore')
+
+# Project paths
+SCRIPT_DIR = os.path.dirname(__file__)
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
+os.makedirs(MODELS_DIR, exist_ok=True)
 
 # Load the data
 print("Loading crop data...")
-df = pd.read_csv('merged_crop_data.csv')
+df = pd.read_csv(os.path.join(DATA_DIR, "merged_crop_data.csv"))
 
 print(f"Dataset shape: {df.shape}")
 
@@ -169,9 +177,9 @@ print(f"R: {rf_r2:.4f}")
 
 # Save model
 print("\nSaving model...")
-joblib.dump(rf_model, 'rf_model.pkl')
-joblib.dump(label_encoders, 'label_encoders.pkl')
-joblib.dump(feature_columns, 'feature_columns.pkl')
+joblib.dump(rf_model, os.path.join(MODELS_DIR, "rf_model.pkl"))
+joblib.dump(label_encoders, os.path.join(MODELS_DIR, "label_encoders.pkl"))
+joblib.dump(feature_columns, os.path.join(MODELS_DIR, "feature_columns.pkl"))
 
 print("Model saved successfully!")
 

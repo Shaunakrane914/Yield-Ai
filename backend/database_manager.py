@@ -19,6 +19,7 @@ from contextlib import contextmanager
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
 class DatabaseManager:
     """
@@ -120,6 +121,8 @@ class DatabaseManager:
             bool: True if successful, False otherwise
         """
         try:
+            if not os.path.isabs(file_path):
+                file_path = os.path.join(PROJECT_ROOT, file_path)
             with open(file_path, 'r', encoding='utf-8') as file:
                 sql_commands = file.read()
             
@@ -589,7 +592,7 @@ def main():
     
     # Run SQL setup file
     print("Running database schema setup...")
-    if not db_manager.run_sql_file('database_setup.sql'):
+    if not db_manager.run_sql_file(os.path.join('sql', 'database_setup.sql')):
         print("❌ Database schema setup failed!")
         return
     
@@ -597,8 +600,9 @@ def main():
     
     # Migrate CSV data
     print("Migrating CSV data...")
-    if os.path.exists('merged_crop_data.csv'):
-        if not db_manager.migrate_csv_data('merged_crop_data.csv'):
+    csv_path = os.path.join(PROJECT_ROOT, 'data', 'merged_crop_data.csv')
+    if os.path.exists(csv_path):
+        if not db_manager.migrate_csv_data(csv_path):
             print("❌ CSV data migration failed!")
             return
         print("✅ CSV data migration completed!")

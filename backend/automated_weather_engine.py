@@ -26,18 +26,21 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import requests
-from database_manager import DatabaseManager
+from backend.database_manager import DatabaseManager
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+LOG_FILE_PATH = os.path.join(PROJECT_ROOT, "logs", "weather_engine.log")
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('weather_engine.log'),
+        logging.FileHandler(LOG_FILE_PATH),
         logging.StreamHandler(sys.stdout)
     ]
 )
